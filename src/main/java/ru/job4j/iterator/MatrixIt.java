@@ -16,16 +16,15 @@ public class MatrixIt implements Iterator<Integer> {
      * hasNext - проверяет, если ли следующий элемент.
      * <p>
      * Метод возвращает true, если существует элемент верхнего массива(row),
-     * содержащий внутри себя хотя бы 1 элемент внутреннего массива(column).
-     * ОБРАТИТЕ ВНИМАНИЕ: в этом методе возможно изменение значения row,
-     * для тех случаев когда row НЕ содержит элементов
-     * Это сделано для оптимизации, чтобы повторно не перебирать пустые row
-     * в методе {@link #next}
+     * и имеющий для дальнейшего перебора хотя бы 1 элемент внутреннего массива(column).
+     * ОБРАТИТЕ ВНИМАНИЕ: в этом методе меняется значения row и column,
+     * в тех случаях когда row больше НЕ СОДЕРЖИТ элементов(или row изначально пустой)
      */
     @Override
     public boolean hasNext() {
-        while (row < data.length && data[row].length == 0) {
+        while (row < data.length && data[row].length == column) {
             row++;
+            column = 0;
         }
         return row < data.length;
     }
@@ -33,23 +32,14 @@ public class MatrixIt implements Iterator<Integer> {
     /**
      * next - возвращает элемент и сдвигает указатель итератора на следующий элемент.
      * <p>
-     * Если в row ещё существуют элементы, то переход к следующему элементу внутри row
-     * Если в row элементы закончились, то переход к следующему row
-     * Пропуск row, не содержащих элементов осуществляется в {@link #hasNext}
+     * ОБРАТИТЕ ВНИМАНИЕ: Обработка случая, когда в row элементы закончились(или их вообще нет)
+     * осуществляется в {@link #hasNext}
      */
     @Override
     public Integer next() {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
-        int r = row;
-        int c = column;
-        if (column < data[row].length - 1) {
-            column++;
-        } else {
-            row++;
-            column = 0;
-        }
-        return data[r][c];
+        return data[row][column++];
     }
 }
