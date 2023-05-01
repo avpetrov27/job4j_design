@@ -19,32 +19,28 @@ public class SimpleArrayList<T> implements SimpleList<T> {
     public void add(T value) {
         modCount++;
         if (size == container.length) {
-            container = grow();
+            grow();
         }
         container[size++] = value;
     }
 
     @SuppressWarnings("unchecked")
-    private T[] grow() {
-        if (container.length > 0) {
-            return Arrays.copyOf(container, 2 * container.length);
-        } else {
-            return (T[]) new Object[1];
-        }
+    private void grow() {
+        container = container.length > 0
+                ? Arrays.copyOf(container, 2 * container.length)
+                : (T[]) new Object[1];
     }
 
     @Override
     public T set(int index, T newValue) {
-        Objects.checkIndex(index, size);
-        T oldValue = container[index];
+        T oldValue = get(index);
         container[index] = newValue;
         return oldValue;
     }
 
     @Override
     public T remove(int index) {
-        Objects.checkIndex(index, size);
-        T oldValue = container[index];
+        T oldValue = get(index);
         modCount++;
         if (size - 1 > index) {
             System.arraycopy(container, index + 1, container, index, size - index - 1);
@@ -73,7 +69,9 @@ public class SimpleArrayList<T> implements SimpleList<T> {
 
             @Override
             public boolean hasNext() {
-                checkForComodification();
+                if (modCount != expectedModCount) {
+                    throw new ConcurrentModificationException();
+                }
                 return cursor < size;
             }
 
@@ -83,12 +81,6 @@ public class SimpleArrayList<T> implements SimpleList<T> {
                     throw new NoSuchElementException();
                 }
                 return container[cursor++];
-            }
-
-            private void checkForComodification() {
-                if (modCount != expectedModCount) {
-                    throw new ConcurrentModificationException();
-                }
             }
         };
     }
