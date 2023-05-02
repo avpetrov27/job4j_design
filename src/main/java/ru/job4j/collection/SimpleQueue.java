@@ -12,44 +12,46 @@ public class SimpleQueue<T> {
      * В выходном стеке элементы располагаются в обратном порядке относительно входного.
      */
     private final SimpleStack<T> out = new SimpleStack<>();
+    private int countIn;
+    private int countOut;
 
     /**
      * poll - возвращает первый элемент(в смысле FIFO) и удаляет его из коллекции.
      * <p>
      * Метод работает следующим образом:
-     * 1. Если есть элементы в out - то они возвращаются поочерёдно "сверху стопки"
-     * 2. Если элементов нет в out (exception eOut), то происходит поочерёдное перемещение
-     * ВСЕХ элементов из in в out, до тех пор пока не будут перемещены ВСЕ элементы(exception eIn),
-     * после этого возвращается первый элемент out ("сверху стопки")
-     * 3. Если в предыдущем пункте перемещать нечего(т.е. in пуст и out пуст), то выбрасывается
-     * исключение (eAtAll) "Queue is empty"
+     * 1. Если есть элементы в out (countOut > 0) - то они возвращаются поочерёдно "сверху стопки"
+     * 2. Если элементов нет в out (countOut == 0), то происходит поочерёдное перемещение
+     * ВСЕХ элементов из in в out, до тех пор пока не будут перемещены ВСЕ элементы (countIn == 0),
+     * после этого возвращается элемент "сверху стопки" out, если он там есть(countOut > 0)
+     * 3. Если в предыдущем пункте фактически перемещать было нечего(т.е. countIn == 0 и countOut == 0),
+     * то выбрасывается исключение "Queue is empty"
      *
      * @return T - возвращаемый элемент
      */
     public T poll() {
-        try {
+        if (countOut > 0) {
+            countOut--;
             return out.pop();
-        } catch (NoSuchElementException eOut) {
-            while (true) {
-                try {
-                    out.push(in.pop());
-                } catch (NoSuchElementException eIn) {
-                    try {
-                        return out.pop();
-                    } catch (NoSuchElementException eAtAll) {
-                        throw new NoSuchElementException("Queue is empty");
-                    }
-                }
-            }
         }
+        while (countIn > 0) {
+            countIn--;
+            countOut++;
+            out.push(in.pop());
+        }
+        if (countOut > 0) {
+            countOut--;
+            return out.pop();
+        }
+        throw new NoSuchElementException("Queue is empty");
     }
 
     /**
      * push - метод добавляет элемент в коллекцию (in)
      *
-     * @param value - добавляемое значение
+     * @param value - добавляемый элемент
      */
     public void push(T value) {
         in.push(value);
+        countIn++;
     }
 }
