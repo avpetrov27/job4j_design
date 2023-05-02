@@ -19,30 +19,26 @@ public class SimpleQueue<T> {
      * poll - возвращает первый элемент(в смысле FIFO) и удаляет его из коллекции.
      * <p>
      * Метод работает следующим образом:
-     * 1. Если есть элементы в out (countOut > 0) - то они возвращаются поочерёдно "сверху стопки"
+     * 1. Если в коллекции нет элементов, то выбрасывается исключение "Queue is empty"
      * 2. Если элементов нет в out (countOut == 0), то происходит поочерёдное перемещение
-     * ВСЕХ элементов из in в out, до тех пор пока не будут перемещены ВСЕ элементы (countIn == 0),
-     * после этого возвращается элемент "сверху стопки" out, если он там есть(countOut > 0)
-     * 3. Если в предыдущем пункте фактически перемещать было нечего(т.е. countIn == 0 и countOut == 0),
-     * то выбрасывается исключение "Queue is empty"
+     * ВСЕХ элементов из in в out, до тех пор пока не будут перемещены ВСЕ элементы (countIn == 0)
+     * 3. Возвращается элемент "сверху стопки" out
      *
      * @return T - возвращаемый элемент
      */
     public T poll() {
-        if (countOut > 0) {
-            countOut--;
-            return out.pop();
+        if (countIn + countOut == 0) {
+            throw new NoSuchElementException("Queue is empty");
         }
-        while (countIn > 0) {
-            countIn--;
-            countOut++;
-            out.push(in.pop());
+        if (countOut == 0) {
+            while (countIn > 0) {
+                countIn--;
+                countOut++;
+                out.push(in.pop());
+            }
         }
-        if (countOut > 0) {
-            countOut--;
-            return out.pop();
-        }
-        throw new NoSuchElementException("Queue is empty");
+        countOut--;
+        return out.pop();
     }
 
     /**
