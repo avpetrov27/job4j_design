@@ -20,6 +20,9 @@ class ListUtilsTest {
     void whenAddBefore() {
         ListUtils.addBefore(input, 1, 2);
         assertThat(input).hasSize(3).containsSequence(1, 2, 3);
+        ListUtils.addBefore(input, 2, 4);
+        ListUtils.addBefore(input, 0, 0);
+        assertThat(input).hasSize(5).containsSequence(0, 1, 2, 4, 3);
     }
 
     @Test
@@ -32,6 +35,9 @@ class ListUtilsTest {
     void whenAddAfter() {
         ListUtils.addAfter(input, 0, 2);
         assertThat(input).hasSize(3).containsSequence(1, 2, 3);
+        ListUtils.addAfter(input, 2, 4);
+        ListUtils.addAfter(input, 0, 0);
+        assertThat(input).hasSize(5).containsSequence(1, 0, 2, 3, 4);
     }
 
     @Test
