@@ -30,10 +30,19 @@ public class User {
             Object value = map.get(key);
             System.out.println(key + " = " + value);
         }
+        Object v = map.get(new User("Sasha", 0, calendar));
+        System.out.println(v);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(name, children, birthday);
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        User user = (User) o;
+        return children == user.children && Objects.equals(name, user.name) && Objects.equals(birthday, user.birthday);
     }
 }
