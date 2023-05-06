@@ -23,7 +23,7 @@ public class User {
         int hashCode2 = u2.hashCode();
         int hash2 = hashCode2 ^ (hashCode2 >>> 16);
         int bucket2 = hash2 & 15;
-        Map<User, Object> map = new HashMap<>(16);
+        java.util.Map<User, Object> map = new HashMap<>(16);
         map.put(u1, new Object());
         map.put(u2, new Object());
         for (User key : map.keySet()) {
