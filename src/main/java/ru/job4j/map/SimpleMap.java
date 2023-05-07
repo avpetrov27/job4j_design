@@ -13,10 +13,9 @@ public class SimpleMap<K, V> implements Map<K, V> {
     @Override
     public boolean put(K key, V value) {
         boolean ret = false;
-        int hash = hash(hashCode(key));
-        int i = indexFor(hash);
+        int i = indexFor(hash(hashCode(key)));
         if (table[i] == null) {
-            table[i] = new MapEntry<>(key, value, hash);
+            table[i] = new MapEntry<>(key, value);
             modCount++;
             count++;
             if (count >= (int) (capacity * LOAD_FACTOR)) {
@@ -28,7 +27,7 @@ public class SimpleMap<K, V> implements Map<K, V> {
     }
 
     private int hashCode(K key) {
-        return (key == null ? 0 : key.hashCode());
+        return Objects.hashCode(key);
     }
 
     private int hash(int hashCode) {
@@ -51,25 +50,27 @@ public class SimpleMap<K, V> implements Map<K, V> {
         capacity <<= 1;
     }
 
-    private boolean keyExists(K key, int hash, int i) {
-        return (table[i] != null
-                && hash == table[i].hash
-                && (Objects.equals(key, table[i].key)));
+    private int bucketIndex(K key) {
+        int hashCode = hashCode(key);
+        int i = indexFor(hash(hashCode));
+        return table[i] != null
+                && hashCode == hashCode(table[i].key)
+                && Objects.equals(key, table[i].key)
+                ? i
+                : -1;
     }
 
     @Override
     public V get(K key) {
-        int hash = hash(hashCode(key));
-        int i = indexFor(hash);
-        return keyExists(key, hash, i) ? table[i].value : null;
+        int i = bucketIndex(key);
+        return i > -1 ? table[i].value : null;
     }
 
     @Override
     public boolean remove(K key) {
         boolean ret = false;
-        int hash = hash(hashCode(key));
-        int i = indexFor(hash);
-        if (keyExists(key, hash, i)) {
+        int i = bucketIndex(key);
+        if (i > -1) {
             table[i].key = null;
             table[i].value = null;
             table[i] = null;
@@ -110,12 +111,10 @@ public class SimpleMap<K, V> implements Map<K, V> {
     private static class MapEntry<K, V> {
         K key;
         V value;
-        int hash;
 
-        public MapEntry(K key, V value, int hash) {
+        public MapEntry(K key, V value) {
             this.key = key;
             this.value = value;
-            this.hash = hash;
         }
     }
 }
