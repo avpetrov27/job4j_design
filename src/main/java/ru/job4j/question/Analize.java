@@ -1,6 +1,7 @@
 package ru.job4j.question;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class Analize {
@@ -23,7 +24,7 @@ public class Analize {
      */
     public static Info diff(Set<User> previous, Set<User> current) {
         int added = 0, changed = 0, deleted = 0;
-        HashMap<Integer, String> mapEqKey = new HashMap<>();
+        Map<Integer, String> mapEqKey = new HashMap<>();
         for (User userPrev : previous) {
             if (current.contains(userPrev)) {
                 mapEqKey.put(userPrev.hashCode(), userPrev.getName());
