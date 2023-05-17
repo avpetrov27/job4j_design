@@ -20,7 +20,7 @@ public class Config {
         try (BufferedReader read = new BufferedReader(new FileReader(this.path))) {
             values.putAll(read.lines()
                     .map(String::trim)
-                    .filter(s -> !(s.length() == 0 || s.startsWith("#")))
+                    .filter(s -> !(s.isEmpty() || s.startsWith("#")))
                     .filter(this::validate)
                     .map(s -> s.split("=", 2))
                     .collect(Collectors.toMap(
