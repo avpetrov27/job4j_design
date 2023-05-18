@@ -3,12 +3,11 @@ package ru.job4j.io;
 import java.io.*;
 
 public class Analysis {
-    private boolean unavailableFlag = false;
-
     public void unavailable(String source, String target) {
         try (BufferedReader read = new BufferedReader(new FileReader(source));
              PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(target)))) {
             String line;
+            boolean unavailableFlag = false;
             while ((line = read.readLine()) != null) {
                 String[] s = line.trim().split(" ", 2);
                 if (("400".equals(s[0]) || "500".equals(s[0])) ^ unavailableFlag) {
