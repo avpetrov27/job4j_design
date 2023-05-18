@@ -12,7 +12,7 @@ public class Analysis {
             while ((line = read.readLine()) != null) {
                 String[] s = line.trim().split(" ", 2);
                 if (("400".equals(s[0]) || "500".equals(s[0])) ^ unavailableFlag) {
-                    out.write(s[1] + ";" + (unavailableFlag ? System.lineSeparator() : ""));
+                    out.printf("%s;%s", s[1], unavailableFlag ? System.lineSeparator() : "");
                     unavailableFlag = !unavailableFlag;
                 }
             }
