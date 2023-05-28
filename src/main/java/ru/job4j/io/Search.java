@@ -9,12 +9,10 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class Search {
-    public static final String BAD_SYMBOL_EXTENSION = "\\/:*?\"<>|";
-
     public static void main(String[] args) throws IOException {
         validate(args);
         Path start = Paths.get(args[0]);
-        search(start, p -> p.toFile().getName().endsWith("." + args[1]))
+        search(start, p -> p.toFile().getName().endsWith(args[1]))
                 .forEach(System.out::println);
     }
 
@@ -38,11 +36,9 @@ public class Search {
             throw new IllegalArgumentException(
                     String.format("Not directory %s", file.getAbsoluteFile()));
         }
-        for (int i = 0; i < BAD_SYMBOL_EXTENSION.toCharArray().length; i++) {
-            if (args[1].contains(String.valueOf(BAD_SYMBOL_EXTENSION.charAt(i)))) {
-                throw new IllegalArgumentException("Invalid symbol of filename extension. "
-                        + "Extension cannot contain characters: " + BAD_SYMBOL_EXTENSION);
-            }
+        if (!args[1].matches("\\..+")) {
+            throw new IllegalArgumentException("Extension must start with a \".\" "
+                    + "and have at least one more character.");
         }
     }
 }
