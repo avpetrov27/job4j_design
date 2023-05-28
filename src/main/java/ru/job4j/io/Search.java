@@ -36,5 +36,9 @@ public class Search {
             throw new IllegalArgumentException(
                     String.format("Not directory %s", file.getAbsoluteFile()));
         }
+        if (args[1] == null || "".equals(args[1])) {
+            throw new IllegalArgumentException("Invalid filename extension. "
+                    + "Specify the correct filename extension.");
+        }
     }
 }
