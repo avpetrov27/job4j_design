@@ -8,13 +8,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Zip {
-    public void packFiles(List<Path> sources, File target) {
+    public void packFiles(List<Path> sources, File target, Path root) {
         try (ZipOutputStream zip =
                      new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(target)))) {
-            Path targetToOneLevelUp = new File(target.getPath() + "\\..\\").toPath();
             for (Path source : sources) {
-                Path relativePath = targetToOneLevelUp.relativize(source);
-                zip.putNextEntry(new ZipEntry(relativePath.toFile().getPath()));
+                zip.putNextEntry(new ZipEntry(root.relativize(source).toFile().getPath()));
                 try (BufferedInputStream out =
                              new BufferedInputStream(new FileInputStream(source.toFile()))) {
                     zip.write(out.readAllBytes());
@@ -26,28 +24,40 @@ public class Zip {
     }
 
     private void validate(ArgsName parameters) throws IOException {
-        Path dir = Path.of(parameters.get("d"));
-        if (!Files.exists(dir)) {
-            throw new IOException("Directory does not exist.");
+        Path root = Path.of(parameters.get("d"));
+        if (!Files.exists(root)) {
+            throw new IOException(String.format("-d Directory %s does not exist.", root));
         }
-        if (!Files.isDirectory(dir)) {
-            throw new IOException("This is not a directory.");
+        if (!Files.isDirectory(root)) {
+            throw new IOException(String.format("-d %s is not a directory.", root));
         }
-        parameters.get("e");
-        parameters.get("o");
+        if (!parameters.get("e").matches("\\..+")) {
+            throw new IllegalArgumentException("-e parameter is incorrect. "
+                    + "Extension must start with a \".\" "
+                    + "and have at least one more character.");
+        }
+        String targetText = parameters.get("o");
+        if (!Files.exists(Path.of(targetText + "\\..\\"))) {
+            throw new IOException(String.format(
+                    "-o File %s cannot be created. Specify the correct path.", targetText));
+        }
+        if (Files.exists(Path.of(targetText))) {
+            throw new IOException(String.format(
+                    "-o File %s cannot be created, because already exists.", targetText));
+        }
     }
 
     public static void main(String[] args) throws IOException {
+        if (args.length != 3) {
+            throw new IllegalArgumentException("Invalid number of arguments. "
+                    + "Specify exactly 3 arguments: parameters -d, -e, -o.");
+        }
         Zip zip = new Zip();
         ArgsName parameters = ArgsName.of(args);
         zip.validate(parameters);
-        Path targetPath = Path.of(parameters.get("d"));
-        String archiveName = parameters.get("o");
-        List<Path> listPathToArchive = Search.search(targetPath,
-                p -> {
-                    String name = p.toFile().getName();
-                    return !name.endsWith(parameters.get("e")) && !name.equals(archiveName);
-                });
-        zip.packFiles(listPathToArchive, new File(targetPath + "\\" + archiveName));
+        Path root = Path.of(parameters.get("d"));
+        List<Path> listPathsToArchive = Search.search(root,
+                p -> !p.toFile().getName().endsWith(parameters.get("e")));
+        zip.packFiles(listPathsToArchive, new File(parameters.get("o")), root);
     }
 }
