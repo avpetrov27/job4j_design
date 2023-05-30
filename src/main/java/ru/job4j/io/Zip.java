@@ -8,11 +8,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Zip {
-    public void packFiles(List<Path> sources, File target, Path root) {
+    public void packFiles(List<Path> sources, File target) throws IOException {
+        preparePathTarget(target);
         try (ZipOutputStream zip =
                      new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(target)))) {
             for (Path source : sources) {
-                zip.putNextEntry(new ZipEntry(root.relativize(source).toFile().getPath()));
+                zip.putNextEntry(new ZipEntry(source.toString()));
                 try (BufferedInputStream out =
                              new BufferedInputStream(new FileInputStream(source.toFile()))) {
                     zip.write(out.readAllBytes());
@@ -20,6 +21,15 @@ public class Zip {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void preparePathTarget(File target) throws IOException {
+        if (!target.mkdirs()) {
+            throw new IOException(String.format("-o File %s could not be created", target));
+        }
+        if (!target.delete()) {
+            throw new IOException(String.format("-o File %s could not be created", target));
         }
     }
 
@@ -37,10 +47,6 @@ public class Zip {
                     + "and have at least one more character.");
         }
         String targetText = parameters.get("o");
-        if (!Files.exists(Path.of(targetText + "\\..\\"))) {
-            throw new IOException(String.format(
-                    "-o File %s cannot be created. Specify the correct path.", targetText));
-        }
         if (Files.exists(Path.of(targetText))) {
             throw new IOException(String.format(
                     "-o File %s cannot be created, because already exists.", targetText));
@@ -55,9 +61,8 @@ public class Zip {
         Zip zip = new Zip();
         ArgsName parameters = ArgsName.of(args);
         zip.validate(parameters);
-        Path root = Path.of(parameters.get("d"));
-        List<Path> listPathsToArchive = Search.search(root,
+        List<Path> listPathsToArchive = Search.search(Path.of(parameters.get("d")),
                 p -> !p.toFile().getName().endsWith(parameters.get("e")));
-        zip.packFiles(listPathsToArchive, new File(parameters.get("o")), root);
+        zip.packFiles(listPathsToArchive, new File(parameters.get("o")));
     }
 }
