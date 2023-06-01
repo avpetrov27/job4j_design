@@ -33,7 +33,8 @@ public class ConsoleChat {
             List<String> log = new LinkedList<>();
             String input = brIn.readLine();
             log.add(String.format("%s %s %s", LocalDateTime.now(), "User", input));
-            int size = readPhrases().size();
+            List<String> phrasesBot = readPhrases();
+            int size = phrasesBot.size();
             boolean botIsOn = true;
             while (!OUT.equalsIgnoreCase(input)) {
                 if (STOP.equalsIgnoreCase(input)) {
@@ -43,7 +44,7 @@ public class ConsoleChat {
                     botIsOn = true;
                 }
                 if (botIsOn) {
-                    String answer = readPhrases().get((int) (Math.random() * size));
+                    String answer = phrasesBot.get((int) (Math.random() * size));
                     pwOut.println(answer);
                     pwOut.flush();
                     log.add(String.format("%s %s %s", LocalDateTime.now(), "Bot", answer));
