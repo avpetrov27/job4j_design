@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 
 public class CSVReader {
     private static final String STDOUT = "stdout";
+    private static final List<String> VALID_DELIMITERS = List.of(";", ",");
 
     private static PrintWriter getPWStdout() {
         return new PrintWriter(
@@ -72,7 +73,10 @@ public class CSVReader {
             throw new IOException(String.format(
                     "-out. File %s cannot be created, because already exists.", targetText));
         }
-        argsName.get("delimiter");
+        if (!VALID_DELIMITERS.contains(argsName.get("delimiter"))) {
+            throw new IOException(String.format("-delimiter. "
+                    + "Delimiter can only be the following characters: %s", VALID_DELIMITERS));
+        }
         argsName.get("filter");
     }
 
