@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 public class EchoServer {
     private final static String EXIT = "Exit";
+    private final static Pattern PATTERN_MSG = Pattern.compile("\\?msg=\\S+");
 
     public static void main(String[] args) throws IOException {
         try (ServerSocket server = new ServerSocket(9000)) {
@@ -19,7 +20,7 @@ public class EchoServer {
                     out.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
                     String firstLine = in.readLine();
                     System.out.println(firstLine);
-                    Matcher matcher = Pattern.compile("\\?msg=\\S+").matcher(firstLine);
+                    Matcher matcher = PATTERN_MSG.matcher(firstLine);
                     if (matcher.find()) {
                         String msg = matcher.group().split("=", 2)[1];
                         if (EXIT.equals(msg)) {
