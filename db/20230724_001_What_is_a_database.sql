@@ -5,7 +5,7 @@ create table Customers(
       gender varchar(1)
 );
 
-insert into Customers (name, age, gender) values ('Petrov', 34, 'М');
+insert into Customers (name, age, gender) values ('Petrov', 34, 'M');
 
 select * from Customers;
 
